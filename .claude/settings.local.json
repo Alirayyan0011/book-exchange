@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(move authLogin.tsx user )",
+      "Bash(move authRegister.tsx user )",
+      "Bash(move authAdminLogin.tsx admin)",
+      "Bash(npm install:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
