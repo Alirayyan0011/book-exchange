@@ -1,7 +1,12 @@
 import Register from '@/components/user/Register';
+import { PublicRoute } from '@/lib/auth/RouteGuard';
 
 export default function RegisterPage() {
-  return <Register />;
+  return (
+    <PublicRoute redirectIfAuthenticated="/dashboard">
+      <Register />
+    </PublicRoute>
+  );
 }
 
 export const metadata = {

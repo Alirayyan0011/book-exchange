@@ -2,8 +2,11 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const Register = () => {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -82,13 +85,27 @@ const Register = () => {
 
     setIsLoading(true);
 
-    // Simulate API call
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      console.log('Registration attempt:', formData);
-      // Handle successful registration here
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Show success message and redirect to login
+        alert('Account created successfully! Please login to continue.');
+        router.push('/login');
+      } else {
+        setErrors({ general: data.message });
+      }
     } catch (error) {
       console.error('Registration error:', error);
+      setErrors({ general: 'An error occurred during registration. Please try again.' });
     } finally {
       setIsLoading(false);
     }
@@ -331,6 +348,13 @@ const Register = () => {
                 <p className="mt-1 text-sm text-red-600 font-light">{errors.agreeToTerms}</p>
               )}
             </div>
+
+            {/* Error Message */}
+            {errors.general && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                <p className="text-sm text-red-600 font-light">{errors.general}</p>
+              </div>
+            )}
 
             {/* Submit Button */}
             <div>

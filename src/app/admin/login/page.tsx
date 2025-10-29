@@ -1,7 +1,12 @@
 import AdminLogin from '@/components/admin/AdminLogin';
+import { PublicRoute } from '@/lib/auth/RouteGuard';
 
 export default function AdminLoginPage() {
-  return <AdminLogin />;
+  return (
+    <PublicRoute redirectIfAuthenticated="/admin/dashboard">
+      <AdminLogin />
+    </PublicRoute>
+  );
 }
 
 export const metadata = {

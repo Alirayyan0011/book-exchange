@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import UserSidebar from './Sidebar';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { useRouter } from 'next/navigation';
 import {
   BookOpen,
   ArrowDownLeft,
@@ -11,17 +13,43 @@ import {
   MessageCircle,
   User,
   TrendingUp,
-  AlertTriangle
+  AlertTriangle,
+  LogOut
 } from 'lucide-react';
 
 const UserDashboard = () => {
-  const [user] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
+  const { user: authUser, logout } = useAuth();
+  const router = useRouter();
+
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [user, setUser] = useState({
+    name: 'Loading...',
+    email: '',
     booksShared: 12,
     booksReceived: 8,
     activeExchanges: 3
   });
+
+  useEffect(() => {
+    if (authUser) {
+      setUser({
+        name: `${authUser.firstName} ${authUser.lastName}`,
+        email: authUser.email,
+        booksShared: 12, // These would come from API in real app
+        booksReceived: 8,
+        activeExchanges: 3
+      });
+    }
+  }, [authUser]);
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
+
+  const handleToggleSidebar = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed);
+  };
 
   const [recentActivity] = useState([
     { id: 1, type: 'shared', book: 'The Great Gatsby', user: 'Alice Johnson', date: '2 days ago' },
@@ -38,10 +66,16 @@ const UserDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Sidebar */}
-      <UserSidebar activeItem="dashboard" />
+      <UserSidebar
+        activeItem="dashboard"
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={handleToggleSidebar}
+      />
 
       {/* Main Content */}
-      <div className="pl-64 flex flex-col min-h-screen">
+      <div className={`transition-all duration-300 flex flex-col min-h-screen ${
+        isSidebarCollapsed ? 'pl-16' : 'pl-64'
+      }`}>
         {/* Header */}
         <header className="bg-white shadow-sm border-b border-slate-200">
           <div className="px-6 py-4">
@@ -49,6 +83,13 @@ const UserDashboard = () => {
               <h1 className="text-2xl font-light text-slate-800">Dashboard</h1>
               <div className="flex items-center space-x-4">
                 <span className="text-slate-600 font-light">Welcome, {user.name}</span>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2 px-3 py-2 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="text-sm">Logout</span>
+                </button>
               </div>
             </div>
           </div>

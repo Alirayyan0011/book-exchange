@@ -13,10 +13,15 @@ import {
 
 interface AdminSidebarProps {
   activeItem?: string;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
-const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeItem = 'dashboard' }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+const AdminSidebar: React.FC<AdminSidebarProps> = ({
+  activeItem = 'dashboard',
+  isCollapsed = false,
+  onToggleCollapse
+}) => {
 
   const menuItems = [
     {
@@ -63,7 +68,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeItem = 'dashboard' })
             </div>
           )}
           <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            onClick={onToggleCollapse}
             className="p-2 rounded-lg hover:bg-slate-700 transition-colors"
           >
             <ChevronLeft

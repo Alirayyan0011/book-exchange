@@ -1,7 +1,12 @@
 import Login from '@/components/user/Login';
+import { PublicRoute } from '@/lib/auth/RouteGuard';
 
 export default function LoginPage() {
-  return <Login />;
+  return (
+    <PublicRoute redirectIfAuthenticated="/dashboard">
+      <Login />
+    </PublicRoute>
+  );
 }
 
 export const metadata = {

@@ -1,7 +1,12 @@
 import AdminDashboard from '@/components/admin/Dashboard';
+import { AdminRoute } from '@/lib/auth/RouteGuard';
 
 export default function AdminDashboardPage() {
-  return <AdminDashboard />;
+  return (
+    <AdminRoute>
+      <AdminDashboard />
+    </AdminRoute>
+  );
 }
 
 export const metadata = {

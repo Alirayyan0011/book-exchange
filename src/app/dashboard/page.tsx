@@ -1,7 +1,12 @@
 import UserDashboard from '@/components/user/Dashboard';
+import { ProtectedRoute } from '@/lib/auth/RouteGuard';
 
 export default function DashboardPage() {
-  return <UserDashboard />;
+  return (
+    <ProtectedRoute>
+      <UserDashboard />
+    </ProtectedRoute>
+  );
 }
 
 export const metadata = {

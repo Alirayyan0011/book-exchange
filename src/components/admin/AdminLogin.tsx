@@ -2,8 +2,13 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { useRouter } from 'next/navigation';
 
 const AdminLogin = () => {
+  const { login } = useAuth();
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -65,14 +70,34 @@ const AdminLogin = () => {
 
     setIsLoading(true);
 
-    // Simulate API call for admin authentication
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      console.log('Admin login attempt:', formData);
-      // Handle successful admin login here
-      // This would typically verify admin credentials and admin code
+      const response = await fetch('/api/auth/admin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          adminCode: formData.adminCode,
+          rememberMe: formData.rememberMe,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Use auth context to handle login
+        login(data.user, data.token);
+
+        // Redirect to admin dashboard
+        router.push('/admin/dashboard');
+      } else {
+        setErrors({ general: data.message });
+      }
     } catch (error) {
       console.error('Admin login error:', error);
+      setErrors({ general: 'An error occurred during admin authentication. Please try again.' });
     } finally {
       setIsLoading(false);
     }
@@ -202,6 +227,13 @@ const AdminLogin = () => {
                 Keep me signed in
               </label>
             </div>
+
+            {/* Error Message */}
+            {errors.general && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                <p className="text-sm text-red-600 font-light">{errors.general}</p>
+              </div>
+            )}
 
             {/* Submit Button */}
             <div>

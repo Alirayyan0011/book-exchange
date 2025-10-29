@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminSidebar from './Sidebar';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { useRouter } from 'next/navigation';
 import {
   Users,
   TrendingUp,
@@ -15,10 +17,37 @@ import {
   ArrowLeftRight,
   Settings,
   BarChart3,
-  Shield
+  Shield,
+  LogOut
 } from 'lucide-react';
 
 const AdminDashboard = () => {
+  const { user: authUser, logout } = useAuth();
+  const router = useRouter();
+
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [adminUser, setAdminUser] = useState({
+    name: 'Loading...',
+    email: ''
+  });
+
+  useEffect(() => {
+    if (authUser) {
+      setAdminUser({
+        name: `${authUser.firstName} ${authUser.lastName}`,
+        email: authUser.email
+      });
+    }
+  }, [authUser]);
+
+  const handleLogout = () => {
+    logout();
+    router.push('/admin/login');
+  };
+
+  const handleToggleSidebar = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed);
+  };
   const [stats] = useState({
     totalUsers: 1247,
     activeExchanges: 89,
@@ -48,19 +77,33 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
       {/* Sidebar */}
-      <AdminSidebar activeItem="dashboard" />
+      <AdminSidebar
+        activeItem="dashboard"
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={handleToggleSidebar}
+      />
 
       {/* Main Content */}
-      <div className="pl-64 flex flex-col min-h-screen">
+      <div className={`transition-all duration-300 flex flex-col min-h-screen ${
+        isSidebarCollapsed ? 'pl-16' : 'pl-64'
+      }`}>
         {/* Header */}
         <header className="bg-slate-800 shadow-lg border-b border-slate-700">
           <div className="px-6 py-4">
             <div className="flex justify-between items-center">
               <h1 className="text-2xl font-light text-white">Admin Dashboard</h1>
               <div className="flex items-center space-x-4">
+                <span className="text-slate-300 font-light">Welcome, {adminUser.name}</span>
                 <span className="bg-amber-600 text-white px-3 py-1 rounded-full text-sm font-medium">
                   Administrator
                 </span>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2 px-3 py-2 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="text-sm">Logout</span>
+                </button>
               </div>
             </div>
           </div>

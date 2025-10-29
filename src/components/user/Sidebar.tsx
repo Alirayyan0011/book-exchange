@@ -14,10 +14,15 @@ import {
 
 interface UserSidebarProps {
   activeItem?: string;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
-const UserSidebar: React.FC<UserSidebarProps> = ({ activeItem = 'dashboard' }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+const UserSidebar: React.FC<UserSidebarProps> = ({
+  activeItem = 'dashboard',
+  isCollapsed = false,
+  onToggleCollapse
+}) => {
 
   const menuItems = [
     {
@@ -65,7 +70,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({ activeItem = 'dashboard' }) =
             </Link>
           )}
           <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            onClick={onToggleCollapse}
             className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
           >
             <ChevronLeft
