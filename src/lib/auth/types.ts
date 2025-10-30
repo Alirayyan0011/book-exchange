@@ -3,6 +3,8 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
+  mobileNumber?: string;
+  profileImage?: string;
   isAdmin: boolean;
   createdAt: Date;
 }

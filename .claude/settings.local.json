@@ -5,7 +5,8 @@
       "Bash(move authLogin.tsx user )",
       "Bash(move authRegister.tsx user )",
       "Bash(move authAdminLogin.tsx admin)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

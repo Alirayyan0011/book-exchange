@@ -6,6 +6,8 @@ export interface IUser extends Document {
   firstName: string;
   lastName: string;
   password: string;
+  mobileNumber?: string;
+  profileImage?: string;
   isAdmin: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -37,6 +39,15 @@ const UserSchema = new Schema<IUser>(
       type: String,
       required: [true, 'Password is required'],
       minlength: [8, 'Password must be at least 8 characters long'],
+    },
+    mobileNumber: {
+      type: String,
+      trim: true,
+      match: [/^[\+]?[1-9][\d]{0,15}$/, 'Please enter a valid mobile number'],
+    },
+    profileImage: {
+      type: String,
+      trim: true,
     },
     isAdmin: {
       type: Boolean,

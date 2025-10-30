@@ -39,9 +39,14 @@ export const RouteGuard: React.FC<RouteGuardProps> = ({
       return;
     }
 
-    // If user is authenticated but trying to access wrong dashboard
+    // If user is authenticated but trying to access wrong dashboard (but not profile pages)
     if (isAuthenticated && user) {
       const currentPath = window.location.pathname;
+
+      // Don't redirect profile pages
+      if (currentPath.includes('/profile')) {
+        return;
+      }
 
       if (user.isAdmin && currentPath.startsWith('/dashboard') && !currentPath.startsWith('/admin/dashboard')) {
         router.push('/admin/dashboard');

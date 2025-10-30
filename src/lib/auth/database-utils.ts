@@ -87,6 +87,8 @@ export const createUser = async (userData: {
     email: savedUser.email,
     firstName: savedUser.firstName,
     lastName: savedUser.lastName,
+    mobileNumber: savedUser.mobileNumber,
+    profileImage: savedUser.profileImage,
     isAdmin: savedUser.isAdmin,
     createdAt: savedUser.createdAt,
   };
@@ -111,6 +113,8 @@ export const getAllUsers = async (): Promise<UserType[]> => {
     email: user.email,
     firstName: user.firstName,
     lastName: user.lastName,
+    mobileNumber: user.mobileNumber,
+    profileImage: user.profileImage,
     isAdmin: user.isAdmin,
     createdAt: user.createdAt,
   }));

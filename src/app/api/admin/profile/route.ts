@@ -17,8 +17,16 @@ async function handleGetProfile(req: AuthenticatedRequest): Promise<NextResponse
     const user = await findUserById(userId);
     if (!user) {
       return NextResponse.json(
-        { success: false, message: 'User not found' },
+        { success: false, message: 'Admin not found' },
         { status: 404 }
+      );
+    }
+
+    // Ensure user is admin
+    if (!user.isAdmin) {
+      return NextResponse.json(
+        { success: false, message: 'Access denied. Admin privileges required' },
+        { status: 403 }
       );
     }
 
@@ -35,14 +43,14 @@ async function handleGetProfile(req: AuthenticatedRequest): Promise<NextResponse
     return NextResponse.json(
       {
         success: true,
-        message: 'Profile retrieved successfully',
+        message: 'Admin profile retrieved successfully',
         user: userProfile,
       },
       { status: 200 }
     );
 
   } catch (error) {
-    console.error('Profile fetch error:', error);
+    console.error('Admin profile fetch error:', error);
     return NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500 }
@@ -71,8 +79,16 @@ async function handleUpdateProfile(req: AuthenticatedRequest): Promise<NextRespo
     const user = await findUserById(userId);
     if (!user) {
       return NextResponse.json(
-        { success: false, message: 'User not found' },
+        { success: false, message: 'Admin not found' },
         { status: 404 }
+      );
+    }
+
+    // Ensure user is admin
+    if (!user.isAdmin) {
+      return NextResponse.json(
+        { success: false, message: 'Access denied. Admin privileges required' },
+        { status: 403 }
       );
     }
 
@@ -131,7 +147,7 @@ async function handleUpdateProfile(req: AuthenticatedRequest): Promise<NextRespo
 
     if (!updatedUser) {
       return NextResponse.json(
-        { success: false, message: 'Failed to update profile' },
+        { success: false, message: 'Failed to update admin profile' },
         { status: 500 }
       );
     }
@@ -150,14 +166,14 @@ async function handleUpdateProfile(req: AuthenticatedRequest): Promise<NextRespo
     return NextResponse.json(
       {
         success: true,
-        message: 'Profile updated successfully',
+        message: 'Admin profile updated successfully',
         user: userProfile,
       },
       { status: 200 }
     );
 
   } catch (error) {
-    console.error('Profile update error:', error);
+    console.error('Admin profile update error:', error);
     return NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500 }
