@@ -78,6 +78,7 @@ export const createUser = async (userData: {
     lastName: userData.lastName,
     password: hashedPassword,
     isAdmin: userData.isAdmin || false,
+    isApproved: userData.isAdmin || false, // Auto-approve admin users, regular users need approval
   });
 
   const savedUser = await user.save();
@@ -90,6 +91,7 @@ export const createUser = async (userData: {
     mobileNumber: savedUser.mobileNumber,
     profileImage: savedUser.profileImage,
     isAdmin: savedUser.isAdmin,
+    isApproved: savedUser.isApproved,
     createdAt: savedUser.createdAt,
   };
 };
@@ -116,6 +118,7 @@ export const getAllUsers = async (): Promise<UserType[]> => {
     mobileNumber: user.mobileNumber,
     profileImage: user.profileImage,
     isAdmin: user.isAdmin,
+    isApproved: user.isApproved,
     createdAt: user.createdAt,
   }));
 };

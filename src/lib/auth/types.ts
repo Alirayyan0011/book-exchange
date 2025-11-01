@@ -6,6 +6,7 @@ export interface User {
   mobileNumber?: string;
   profileImage?: string;
   isAdmin: boolean;
+  isApproved: boolean;
   createdAt: Date;
 }
 

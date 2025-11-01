@@ -67,6 +67,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<AuthRespo
       );
     }
 
+    // Check if user account is approved
+    if (!user.isApproved) {
+      return NextResponse.json(
+        { success: false, message: 'Your signup request is still pending. Please wait for admin approval.' },
+        { status: 403 }
+      );
+    }
+
     // Generate token
     const userForToken = {
       id: user._id.toString(),

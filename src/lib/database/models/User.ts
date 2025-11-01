@@ -9,6 +9,7 @@ export interface IUser extends Document {
   mobileNumber?: string;
   profileImage?: string;
   isAdmin: boolean;
+  isApproved: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -52,6 +53,10 @@ const UserSchema = new Schema<IUser>(
     isAdmin: {
       type: Boolean,
       default: false,
+    },
+    isApproved: {
+      type: Boolean,
+      default: false, // New users require admin approval
     },
   },
   {

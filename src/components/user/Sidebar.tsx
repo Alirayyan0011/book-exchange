@@ -41,7 +41,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
       id: 'my-books',
       label: 'My Books',
       icon: BookOpen,
-      href: '/my-books'
+      href: '/books'
     },
     {
       id: 'exchanges',
