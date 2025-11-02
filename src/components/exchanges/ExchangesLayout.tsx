@@ -5,6 +5,8 @@ import { BookOpen, Search, Filter, MapPin, User, Clock, Heart, Mail, LogOut } fr
 import UserSidebar from '@/components/user/Sidebar';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { useRouter } from 'next/navigation';
+import BookDetailsModal from './BookDetailsModal';
+import ChatModal from './ChatModal';
 
 interface BookOwner {
   id: string;
@@ -45,6 +47,10 @@ export default function ExchangesLayout() {
   const [selectedGenre, setSelectedGenre] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedCondition, setSelectedCondition] = useState('');
+
+  // Modal state
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [showChatModal, setShowChatModal] = useState(false);
 
   useEffect(() => {
     fetchBooks();
@@ -116,6 +122,19 @@ export default function ExchangesLayout() {
     const subject = encodeURIComponent(`Book Exchange Interest: ${bookTitle}`);
     const body = encodeURIComponent(`Hi! I'm interested in exchanging books with you. I saw your book "${bookTitle}" on the book exchange platform and would like to discuss a potential exchange. Please let me know if you're interested.\n\nBest regards,\n${authUser?.firstName} ${authUser?.lastName}`);
     window.open(`mailto:${ownerEmail}?subject=${subject}&body=${body}`);
+  };
+
+  const handleBookClick = (book: Book) => {
+    setSelectedBook(book);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedBook(null);
+    setShowChatModal(false);
+  };
+
+  const handleChatWithOwner = () => {
+    setShowChatModal(true);
   };
 
   // Get unique values for filters
@@ -307,7 +326,10 @@ export default function ExchangesLayout() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {filteredBooks.map((book) => (
                     <div key={book.id} className="border border-slate-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
-                      <div className="aspect-[3/4] bg-slate-100">
+                      <div
+                        className="aspect-[3/4] bg-slate-100 cursor-pointer"
+                        onClick={() => handleBookClick(book)}
+                      >
                         <img
                           src={book.images[0]}
                           alt={book.title}
@@ -382,6 +404,27 @@ export default function ExchangesLayout() {
           </div>
         </div>
       </div>
+
+      {/* Book Details Modal */}
+      {selectedBook && !showChatModal && (
+        <BookDetailsModal
+          book={selectedBook}
+          onClose={handleCloseModal}
+          onChatWithOwner={handleChatWithOwner}
+          currentUserName={`${authUser?.firstName} ${authUser?.lastName}`}
+        />
+      )}
+
+      {/* Chat Modal */}
+      {selectedBook && showChatModal && authUser && (
+        <ChatModal
+          book={selectedBook}
+          currentUserId={authUser.id}
+          currentUserName={`${authUser.firstName} ${authUser.lastName}`}
+          onClose={handleCloseModal}
+          onBack={() => setShowChatModal(false)}
+        />
+      )}
     </div>
   );
 }
