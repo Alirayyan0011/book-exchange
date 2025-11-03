@@ -94,7 +94,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<AuthRespo
     const userForToken = {
       id: user._id.toString(),
       email: user.email,
-      isAdmin: user.isAdmin
+      firstName: user.firstName,
+      lastName: user.lastName,
+      mobileNumber: user.mobileNumber,
+      profileImage: user.profileImage,
+      isAdmin: user.isAdmin,
+      isApproved: user.isApproved
     };
     const token = generateToken(userForToken);
 
@@ -107,7 +112,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<AuthRespo
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
+          mobileNumber: user.mobileNumber,
+          profileImage: user.profileImage,
           isAdmin: user.isAdmin,
+          isApproved: user.isApproved,
           createdAt: user.createdAt,
         },
         token,

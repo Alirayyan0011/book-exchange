@@ -76,7 +76,10 @@ export const createUser = async (userData: {
     email: userData.email.toLowerCase(),
     firstName: userData.firstName,
     lastName: userData.lastName,
+    mobileNumber: undefined,
+    profileImage: undefined,
     isAdmin: userData.isAdmin || false,
+    isApproved: userData.isAdmin ? true : false, // Admins auto-approved, users need approval
     password: hashedPassword,
     createdAt: new Date(),
   };

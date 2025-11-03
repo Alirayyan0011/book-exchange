@@ -29,7 +29,7 @@ async function handleGetUsers(req: AuthenticatedRequest): Promise<NextResponse> 
 
     // Get book counts and exchange statistics for each user
     const usersWithStats = await Promise.all(
-      users.map(async (user) => {
+      users.map(async (user: any) => {
         const userId = user._id.toString();
 
         // Count total books added by user

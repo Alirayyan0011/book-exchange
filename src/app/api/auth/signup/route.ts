@@ -52,7 +52,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<AuthRespo
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.isValid) {
       return NextResponse.json(
-        { success: false, message: passwordValidation.message },
+        { success: false, message: passwordValidation.message || 'Invalid password' },
         { status: 400 }
       );
     }
@@ -101,7 +101,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<AuthRespo
           email: newUser.email,
           firstName: newUser.firstName,
           lastName: newUser.lastName,
+          mobileNumber: newUser.mobileNumber,
+          profileImage: newUser.profileImage,
           isAdmin: newUser.isAdmin,
+          isApproved: newUser.isApproved,
           createdAt: newUser.createdAt,
         },
         token,
