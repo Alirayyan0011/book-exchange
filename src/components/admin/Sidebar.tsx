@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth/AuthContext';
 import {
   LayoutDashboard,
   Users,
@@ -22,6 +24,13 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
   isCollapsed = false,
   onToggleCollapse
 }) => {
+  const { logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/admin/login');
+  };
 
   const menuItems = [
     {
@@ -106,6 +115,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
       {/* Sign Out */}
       <div className="p-4 border-t border-slate-700">
         <button
+          onClick={handleLogout}
           className={`flex items-center w-full px-3 py-2 text-slate-300 hover:bg-red-600 hover:text-white rounded-lg transition-colors ${
             isCollapsed ? 'justify-center' : ''
           }`}

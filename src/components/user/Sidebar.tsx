@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth/AuthContext';
 import {
   LayoutDashboard,
   User,
@@ -9,7 +11,8 @@ import {
   ArrowLeftRight,
   MessageCircle,
   LogOut,
-  ChevronLeft
+  ChevronLeft,
+  Package
 } from 'lucide-react';
 
 interface UserSidebarProps {
@@ -23,6 +26,13 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
   isCollapsed = false,
   onToggleCollapse
 }) => {
+  const { logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
 
   const menuItems = [
     {
@@ -45,9 +55,15 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
     },
     {
       id: 'exchanges',
-      label: 'Book Exchanges',
+      label: 'Browse Books',
       icon: ArrowLeftRight,
       href: '/exchanges'
+    },
+    {
+      id: 'my-exchanges',
+      label: 'My Exchanges',
+      icon: Package,
+      href: '/exchanges/manage'
     },
     {
       id: 'chat',
@@ -108,6 +124,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
       {/* Sign Out */}
       <div className="p-4 border-t border-slate-200">
         <button
+          onClick={handleLogout}
           className={`flex items-center w-full px-3 py-2 text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors ${
             isCollapsed ? 'justify-center' : ''
           }`}

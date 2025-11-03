@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, ChevronLeft, ChevronRight, MapPin, User, MessageCircle, Mail } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, MapPin, User, MessageCircle, Mail, ArrowRightLeft } from 'lucide-react';
 
 interface BookOwner {
   id: string;
@@ -29,6 +29,7 @@ interface BookDetailsModalProps {
   book: Book;
   onClose: () => void;
   onChatWithOwner: () => void;
+  onRequestExchange: () => void;
   currentUserName?: string;
 }
 
@@ -36,6 +37,7 @@ export default function BookDetailsModal({
   book,
   onClose,
   onChatWithOwner,
+  onRequestExchange,
   currentUserName
 }: BookDetailsModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -209,8 +211,17 @@ export default function BookDetailsModal({
               {/* Action Buttons */}
               <div className="mt-auto space-y-3">
                 <button
+                  onClick={onRequestExchange}
+                  disabled={book.status !== 'available'}
+                  className="w-full flex items-center justify-center space-x-2 bg-slate-800 text-white px-6 py-3 rounded-lg hover:bg-slate-900 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ArrowRightLeft className="h-5 w-5" />
+                  <span>Request Book Exchange</span>
+                </button>
+
+                <button
                   onClick={onChatWithOwner}
-                  className="w-full flex items-center justify-center space-x-2 bg-slate-800 text-white px-6 py-3 rounded-lg hover:bg-slate-900 transition-colors font-medium"
+                  className="w-full flex items-center justify-center space-x-2 bg-white text-slate-700 border border-slate-300 px-6 py-3 rounded-lg hover:bg-slate-50 transition-colors font-medium"
                 >
                   <MessageCircle className="h-5 w-5" />
                   <span>Chat with Owner</span>

@@ -18,7 +18,8 @@ interface Book {
 }
 
 interface Message {
-  id: string;
+  _id?: string;
+  id?: string;
   senderId: string;
   senderName: string;
   message: string;
@@ -201,11 +202,12 @@ export default function ChatModal({
             </div>
           ) : (
             <>
-              {messages.map((message) => {
+              {messages.map((message, index) => {
                 const isOwn = message.senderId === currentUserId;
+                const messageKey = message._id || message.id || `${message.senderId}-${message.createdAt}-${index}`;
                 return (
                   <div
-                    key={message.id}
+                    key={messageKey}
                     className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
                   >
                     <div className={`max-w-[70%] ${isOwn ? 'items-end' : 'items-start'} flex flex-col`}>

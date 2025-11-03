@@ -14,7 +14,8 @@ import {
   User,
   TrendingUp,
   AlertTriangle,
-  LogOut
+  LogOut,
+  BarChart3
 } from 'lucide-react';
 
 const UserDashboard = () => {
@@ -22,25 +23,66 @@ const UserDashboard = () => {
   const router = useRouter();
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState({
     name: 'Loading...',
     email: '',
-    booksShared: 12,
-    booksReceived: 8,
-    activeExchanges: 3
+    booksShared: 0,
+    booksReceived: 0,
+    activeExchanges: 0
   });
+  const [stats, setStats] = useState({
+    totalBooks: 0,
+    availableBooks: 0,
+    exchangedBooks: 0,
+    pendingBooks: 0
+  });
+  const [recentBooks, setRecentBooks] = useState<any[]>([]);
 
   useEffect(() => {
     if (authUser) {
-      setUser({
+      setUser(prev => ({
+        ...prev,
         name: `${authUser.firstName} ${authUser.lastName}`,
-        email: authUser.email,
-        booksShared: 12, // These would come from API in real app
-        booksReceived: 8,
-        activeExchanges: 3
-      });
+        email: authUser.email
+      }));
     }
   }, [authUser]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await fetch('/api/user/dashboard', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setStats({
+          totalBooks: data.stats.totalBooks,
+          availableBooks: data.stats.availableBooks,
+          exchangedBooks: data.stats.exchangedBooks,
+          pendingBooks: data.stats.pendingBooks
+        });
+        setUser(prev => ({
+          ...prev,
+          booksShared: data.stats.booksShared,
+          booksReceived: data.stats.booksReceived,
+          activeExchanges: data.stats.activeExchanges
+        }));
+        setRecentBooks(data.recentBooks || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -50,18 +92,6 @@ const UserDashboard = () => {
   const handleToggleSidebar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
   };
-
-  const [recentActivity] = useState([
-    { id: 1, type: 'shared', book: 'The Great Gatsby', user: 'Alice Johnson', date: '2 days ago' },
-    { id: 2, type: 'received', book: '1984', user: 'Bob Smith', date: '1 week ago' },
-    { id: 3, type: 'requested', book: 'To Kill a Mockingbird', user: 'Carol White', date: '3 days ago' }
-  ]);
-
-  const [myBooks] = useState([
-    { id: 1, title: 'The Catcher in the Rye', author: 'J.D. Salinger', status: 'Available' },
-    { id: 2, title: 'Pride and Prejudice', author: 'Jane Austen', status: 'Exchanged' },
-    { id: 3, title: 'The Lord of the Rings', author: 'J.R.R. Tolkien', status: 'Available' }
-  ]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -136,70 +166,93 @@ const UserDashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Recent Activity */}
+          {/* Recent Books */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200">
             <div className="p-6 border-b border-slate-200">
-              <h3 className="text-lg font-medium text-slate-900">Recent Activity</h3>
+              <h3 className="text-lg font-medium text-slate-900">My Recent Books</h3>
             </div>
             <div className="p-6">
-              <div className="space-y-4">
-                {recentActivity.map((activity) => (
-                  <div key={activity.id} className="flex items-start space-x-3">
-                    <div className={`p-2 rounded-full ${
-                      activity.type === 'shared' ? 'bg-blue-100' :
-                      activity.type === 'received' ? 'bg-green-100' : 'bg-amber-100'
-                    }`}>
-                      {activity.type === 'shared' && (
-                        <MessageCircle className="h-4 w-4 text-blue-600" />
-                      )}
-                      {activity.type === 'received' && (
-                        <ArrowDownLeft className="h-4 w-4 text-green-600" />
-                      )}
-                      {activity.type === 'requested' && (
-                        <AlertTriangle className="h-4 w-4 text-amber-600" />
-                      )}
+              {loading ? (
+                <div className="text-center text-slate-600">Loading...</div>
+              ) : recentBooks.length > 0 ? (
+                <div className="space-y-4">
+                  {recentBooks.map((book) => (
+                    <div key={book.id} className="flex items-start space-x-3">
+                      <div className="p-2 rounded-full bg-blue-100">
+                        <BookOpen className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-slate-900">{book.title}</p>
+                        <p className="text-xs text-slate-600">by {book.author}</p>
+                        <p className="text-xs text-slate-500 mt-1">Added {book.addedAt}</p>
+                      </div>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        book.status === 'available' ? 'bg-green-100 text-green-800' :
+                        book.status === 'exchanged' ? 'bg-blue-100 text-blue-800' :
+                        'bg-amber-100 text-amber-800'
+                      }`}>
+                        {book.status}
+                      </span>
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-slate-900">
-                        <span className="font-medium">
-                          {activity.type === 'shared' ? 'Shared' :
-                           activity.type === 'received' ? 'Received' : 'Requested'}
-                        </span>{' '}
-                        "{activity.book}" {activity.type !== 'requested' ? 'with' : 'from'} {activity.user}
-                      </p>
-                      <p className="text-xs text-slate-500 mt-1">{activity.date}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-slate-600">
+                  <p className="mb-4">You haven't added any books yet</p>
+                  <button
+                    onClick={() => router.push('/books')}
+                    className="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-light hover:bg-slate-900 transition-colors"
+                  >
+                    Add Your First Book
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* My Books */}
+          {/* Statistics Overview */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200">
-            <div className="p-6 border-b border-slate-200 flex justify-between items-center">
-              <h3 className="text-lg font-medium text-slate-900">My Books</h3>
-              <button className="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-light hover:bg-slate-900 transition-colors">
-                Add Book
-              </button>
+            <div className="p-6 border-b border-slate-200">
+              <h3 className="text-lg font-medium text-slate-900">Book Statistics</h3>
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                {myBooks.map((book) => (
-                  <div key={book.id} className="flex items-center justify-between p-4 border border-slate-200 rounded-lg">
-                    <div>
-                      <h4 className="font-medium text-slate-900">{book.title}</h4>
-                      <p className="text-sm text-slate-600">by {book.author}</p>
+                <div className="flex items-center justify-between p-4 border border-slate-200 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-full bg-blue-100">
+                      <BookOpen className="h-5 w-5 text-blue-600" />
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      book.status === 'Available'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-amber-100 text-amber-800'
-                    }`}>
-                      {book.status}
-                    </span>
+                    <span className="font-medium text-slate-900">Total Books</span>
                   </div>
-                ))}
+                  <span className="text-2xl font-light text-slate-900">{stats.totalBooks}</span>
+                </div>
+                <div className="flex items-center justify-between p-4 border border-slate-200 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-full bg-green-100">
+                      <TrendingUp className="h-5 w-5 text-green-600" />
+                    </div>
+                    <span className="font-medium text-slate-900">Available</span>
+                  </div>
+                  <span className="text-2xl font-light text-slate-900">{stats.availableBooks}</span>
+                </div>
+                <div className="flex items-center justify-between p-4 border border-slate-200 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-full bg-purple-100">
+                      <ArrowLeftRight className="h-5 w-5 text-purple-600" />
+                    </div>
+                    <span className="font-medium text-slate-900">Exchanged</span>
+                  </div>
+                  <span className="text-2xl font-light text-slate-900">{stats.exchangedBooks}</span>
+                </div>
+                <div className="flex items-center justify-between p-4 border border-slate-200 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-full bg-amber-100">
+                      <AlertTriangle className="h-5 w-5 text-amber-600" />
+                    </div>
+                    <span className="font-medium text-slate-900">Pending</span>
+                  </div>
+                  <span className="text-2xl font-light text-slate-900">{stats.pendingBooks}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -208,22 +261,41 @@ const UserDashboard = () => {
         {/* Quick Actions */}
         <div className="mt-8 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <h3 className="text-lg font-medium text-slate-900 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="flex flex-col items-center p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-              <Plus className="h-8 w-8 text-slate-600 mb-2" />
-              <span className="text-sm font-medium text-slate-700">Add Book</span>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <button
+              onClick={() => router.push('/books')}
+              className="flex flex-col items-center p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+            >
+              <BookOpen className="h-8 w-8 text-slate-600 mb-2" />
+              <span className="text-sm font-medium text-slate-700">My Books</span>
             </button>
-            <button className="flex flex-col items-center p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-              <Search className="h-8 w-8 text-slate-600 mb-2" />
-              <span className="text-sm font-medium text-slate-700">Browse Books</span>
+            <button
+              onClick={() => router.push('/exchanges')}
+              className="flex flex-col items-center p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+            >
+              <ArrowLeftRight className="h-8 w-8 text-slate-600 mb-2" />
+              <span className="text-sm font-medium text-slate-700">Exchanges</span>
             </button>
-            <button className="flex flex-col items-center p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+            <button
+              onClick={() => router.push('/chat')}
+              className="flex flex-col items-center p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+            >
               <MessageCircle className="h-8 w-8 text-slate-600 mb-2" />
-              <span className="text-sm font-medium text-slate-700">Messages</span>
+              <span className="text-sm font-medium text-slate-700">Chat</span>
             </button>
-            <button className="flex flex-col items-center p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+            <button
+              onClick={() => router.push('/profile')}
+              className="flex flex-col items-center p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+            >
               <User className="h-8 w-8 text-slate-600 mb-2" />
               <span className="text-sm font-medium text-slate-700">Profile</span>
+            </button>
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="flex flex-col items-center p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+            >
+              <BarChart3 className="h-8 w-8 text-slate-600 mb-2" />
+              <span className="text-sm font-medium text-slate-700">Dashboard</span>
             </button>
           </div>
         </div>

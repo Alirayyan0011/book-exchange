@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import BookDetailsModal from './BookDetailsModal';
 import ChatModal from './ChatModal';
+import ExchangeRequestModal from './ExchangeRequestModal';
 
 interface BookOwner {
   id: string;
@@ -51,6 +52,7 @@ export default function ExchangesLayout() {
   // Modal state
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [showChatModal, setShowChatModal] = useState(false);
+  const [showExchangeRequestModal, setShowExchangeRequestModal] = useState(false);
 
   useEffect(() => {
     fetchBooks();
@@ -131,10 +133,23 @@ export default function ExchangesLayout() {
   const handleCloseModal = () => {
     setSelectedBook(null);
     setShowChatModal(false);
+    setShowExchangeRequestModal(false);
   };
 
   const handleChatWithOwner = () => {
     setShowChatModal(true);
+    setShowExchangeRequestModal(false);
+  };
+
+  const handleRequestExchange = () => {
+    setShowExchangeRequestModal(true);
+    setShowChatModal(false);
+  };
+
+  const handleExchangeRequestSuccess = () => {
+    setMessage('Exchange request sent successfully!');
+    setMessageType('success');
+    setTimeout(() => setMessage(''), 3000);
   };
 
   // Get unique values for filters
@@ -406,12 +421,22 @@ export default function ExchangesLayout() {
       </div>
 
       {/* Book Details Modal */}
-      {selectedBook && !showChatModal && (
+      {selectedBook && !showChatModal && !showExchangeRequestModal && (
         <BookDetailsModal
           book={selectedBook}
           onClose={handleCloseModal}
           onChatWithOwner={handleChatWithOwner}
+          onRequestExchange={handleRequestExchange}
           currentUserName={`${authUser?.firstName} ${authUser?.lastName}`}
+        />
+      )}
+
+      {/* Exchange Request Modal */}
+      {selectedBook && showExchangeRequestModal && !showChatModal && (
+        <ExchangeRequestModal
+          book={selectedBook}
+          onClose={handleCloseModal}
+          onSuccess={handleExchangeRequestSuccess}
         />
       )}
 
